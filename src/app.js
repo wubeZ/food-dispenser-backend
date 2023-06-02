@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import compression from 'compression'
 import './services/db.js';
+import logger from './common/logger.js'
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.get('/', (request, response)=>{
 
 const port = process.env.PORT;
 app.listen(port, () => {    
-    console.log(`Server is running on port ${port}`)
+    logger.info(`Server is running on port ${port}`)
 
 })
 

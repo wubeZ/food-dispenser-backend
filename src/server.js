@@ -1,6 +1,7 @@
 import express from 'express';
 import schedule from 'node-schedule';
 import mongoose from 'mongoose';
+import logger from './common/logger.js';
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.post('/schedule', async (req, res) => {
   // Schedule the job
   const scheduleString = `${time} * * ${day.substring(0, 3).toUpperCase()} *`;
   const job = schedule.scheduleJob(scheduleString, () => {
-    console.log(`Job scheduled for ${day} at ${time}`);
+    logger.info( `Job scheduled for ${day} at ${time}`);
   });
 
   // Save the job to the database
@@ -53,7 +54,7 @@ app.put('/schedule/:id', async (req, res) => {
   // Schedule the new job
   const scheduleString = `${time} * * ${day.substring(0, 3).toUpperCase()} *`;
   const newJob = schedule.scheduleJob(scheduleString, () => {
-    console.log(`Job updated for ${day} at ${time}`);
+    logger.info(`Job updated for ${day} at ${time}`);
   });
 
   // Update the job in the database
@@ -87,4 +88,4 @@ app.delete('/schedule/:id', async (req, res) => {
 
 const PORT = process.env.PORT;
 // Start the server
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server listening on port ${PORT}`));

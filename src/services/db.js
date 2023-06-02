@@ -5,6 +5,7 @@ import client from './mqtt.js';
 import nodeScheduler from 'node-schedule';
 import FeedingData from '../resources/feedingData/model.js';
 import create from '../resources/Schedule/controller.js';
+import logger from '../common/logger.js';
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -19,7 +20,7 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', async function() {
-    console.log('MongoDB connected');
+    logger.info('MongoDB connected');
     // reschedule the jobs on server restart
     try {
       currentTime = new Date();

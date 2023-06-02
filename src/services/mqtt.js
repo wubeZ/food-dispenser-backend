@@ -15,30 +15,30 @@ const options = {
 const client = mqtt.connect(options)
 
 client.on('connect', () => {
-    console.log('MQTT connected')
+    logger.info('MQTT connected')
     
 })
 
 
 client.subscribe('capacityResponse', { qos: 1 }, function (err) {
         if (err) {
-          console.error('Error subscribing to capcaityResponse', err)
+          logger.error('Error subscribing to capcaityResponse', err)
         } else {
-          console.log('Subscribed capacityResponse successfully!')
+          logger.info('Subscribed capacityResponse successfully!')
         }
       })
 
 
 client.subscribe('feedingResponse', { qos: 1 }, function (err) {
     if (err) {
-        console.error('Error subscribing to feedingResponse', err)
+        logger.error('Error subscribing to feedingResponse', err)
     } else {
-        console.log('Subscribed feedingResponse successfully!')
+        logger.info('Subscribed feedingResponse successfully!')
     }
 })
 
 client.on('message', async (topic, message) => { 
-    console.log('MQTT message received:', topic, message.toString())
+    logger.info('MQTT message received:', topic, message.toString())
     if (topic == 'feedingResponse1222'){ // change the topic to the topic you want to subscribe to
         message = message.toString()
         message = message.split(',')
@@ -66,17 +66,17 @@ client.on('message', async (topic, message) => {
             capacity
         });
         await data.save();
-        console.log(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time}`);
+        logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time}`);
     }    
 
 })
 
 client.on('error', function (error) {
-    console.log('MQTT Error:', error);
+    logger.info('MQTT Error:', error);
 });
 
 client.on('close', function () {
-    console.log('Disconnected from MQTT broker');
+    logger.info('Disconnected from MQTT broker');
 });
 
 

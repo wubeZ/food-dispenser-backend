@@ -4,6 +4,7 @@ import DeviceModel from '../Devices/model.js';
 import client from "../../services/mqtt.js";
 import FeedingReport from "../reportStatus/model.js";
 import nodeScheduler from 'node-schedule';
+import logger from "../../common/logger.js";
 
 
 const create = async (date, dateString, chickens, amount, device) => {
@@ -37,11 +38,11 @@ const create = async (date, dateString, chickens, amount, device) => {
               capacity: device.currentCapacity
             });
             await newReport.save();
-            console.log(`feeding ${entry.chickens} chickens ${entry.amount} grams of food failed`); 
+            logger.info(`feeding ${entry.chickens} chickens ${entry.amount} grams of food failed`); 
           }
           else{
           client.publish(`feedingRequest/${entry.device}`, feedingrepsonse);
-          console.log(`feeding ${entry.chickens} chickens ${entry.amount} grams of food`);
+          logger.info(`feeding ${entry.chickens} chickens ${entry.amount} grams of food`);
           schedules.date.setDate(schedules.date.getDate() + 1)
           if ((feeding.endDate === null ) || ((feeding.endDate - schedules.date) >= 0) ){
             const dateformat = schedules.date;

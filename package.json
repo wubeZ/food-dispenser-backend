@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.1",
     "mqtt": "^4.3.7",
-    "node-schedule": "^2.1.1"
+    "node-schedule": "^2.1.1",
+    "pino": "^8.14.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

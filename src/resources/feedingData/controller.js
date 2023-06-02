@@ -3,6 +3,7 @@ import ScheduleModel from "../Schedule/model.js";
 import DeviceModel from "../Devices/model.js";
 import client from "../../services/mqtt.js";
 import create from "../Schedule/controller.js";
+import logger from "../../common/logger.js";
 
 const createFeedingData = async (req, res) => {
     const { startDate, endDate, amount, chickens, recurrence } = req.body;
@@ -123,7 +124,7 @@ const getCapacity = async (req, res) => {
         const message = await Promise.race([
             new Promise(resolve => {
             client.on('message', (topic, payload) => {
-                console.log("getting message from topic: ", topic, "message :", payload.toString())
+                logger.info("getting message from topic: ", topic, "message :", payload.toString())
                 if (topic === `capacityResponse/${device}`) {
                 resolve(payload.toString());
                 }
@@ -131,7 +132,7 @@ const getCapacity = async (req, res) => {
             }),
             timeout
         ]).catch(error => {
-            console.log(error.message); // Print timeout error message
+            logger.info(error.message); // Print timeout error message
         });
         // If message is undefined, then the timeout occurred
         if (!message) {
