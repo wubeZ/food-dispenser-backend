@@ -1,6 +1,6 @@
-const express = require('express');
-const schedule = require('node-schedule');
-const mongoose = require('mongoose');
+import express from 'express';
+import schedule from 'node-schedule';
+import mongoose from 'mongoose';
 
 const app = express();
 
