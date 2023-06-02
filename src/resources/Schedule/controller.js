@@ -2,7 +2,7 @@ import FeedingData from "../feedingData/model.js";
 import ScheduleModel from '../Schedule/model.js';
 import DeviceModel from '../Devices/model.js';
 import client from "../../services/mqtt.js";
-import FeedingReport from "../reportStatus/model.js";
+import FeedingReport from "../ReportStatus/model.js";
 import nodeScheduler from 'node-schedule';
 import logger from "../../common/logger.js";
 
