@@ -2,6 +2,7 @@ import mqtt from 'mqtt'
 import '../common/env.js'
 import FeedingReport from '../resources/reportStatus/model.js'
 import mongoose from 'mongoose'
+import logger from '../common/logger.js'
 
 
 const options = {
