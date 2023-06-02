@@ -102,8 +102,10 @@ const login = async (req, res) => {
             device_id: user.device_id,
             email: user.email
         }
-        const sendUser = user;
+        
+        const sendUser = { ...user }["_doc"];
         delete sendUser.password;
+        
         const acesstoken = jwt.sign(new_user, process.env.JWT_SECRET, {expiresIn: "48h"});
         logger.info("User logged in");
         return res.status(200).json({message: "Login Sucessful",token: acesstoken, user: sendUser});   
