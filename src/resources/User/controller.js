@@ -102,9 +102,11 @@ const login = async (req, res) => {
             device_id: user.device_id,
             email: user.email
         }
+        const sendUser = user;
+        delete sendUser.password;
         const acesstoken = jwt.sign(new_user, process.env.JWT_SECRET, {expiresIn: "48h"});
         logger.info("User logged in");
-        return res.status(200).json({message: "Login Sucessful",token: acesstoken, user: user});   
+        return res.status(200).json({message: "Login Sucessful",token: acesstoken, user: sendUser});   
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
