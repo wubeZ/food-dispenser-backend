@@ -85,5 +85,6 @@ app.delete('/schedule/:id', async (req, res) => {
   res.send('Job deleted');
 });
 
+const PORT = process.env.PORT;
 // Start the server
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
