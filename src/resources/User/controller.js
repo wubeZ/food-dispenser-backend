@@ -57,6 +57,19 @@ const getUserById = async (req, res) => {
     }
 }
 
+const getUser = async (req, res) => {
+    if (!req.isAdmin) {
+        return res.status(401).json({message: "Unauthorized"});
+    }
+    try {
+        const user = await UserModel.findById(req.params._id).select('-password');
+        logger.info("got user by id");
+        return res.status(200).json(user);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 const updateUserById = async (req, res) => {
     try {
         const { full_name } = req.body;
@@ -177,5 +190,6 @@ export default {
     deleteUserById,
     login,
     changePassword,
-    createAdmin
+    createAdmin,
+    getUser
 }

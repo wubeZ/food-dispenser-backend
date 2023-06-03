@@ -27,4 +27,8 @@ router
 router
     .route('/change-password').post(auth, userController.changePassword)
 
+router
+    .route(":id")
+    .get(auth, userController.getUser)
+
 export default router;
