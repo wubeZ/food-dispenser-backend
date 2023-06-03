@@ -9,7 +9,7 @@ const getAllUsers = async (req, res) => {
         if (!req.isAdmin) {
             return res.status(401).json({message: "Unauthorized"});
         }
-        const users = await UserModel.find({});
+        const users = await UserModel.find({}).select('-password');
         logger.info("got all users");
         return res.status(200).json(users);
    } catch (err) {
@@ -49,7 +49,7 @@ const createUser = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-        const user = await UserModel.findById(req._id);
+        const user = await UserModel.findById(req._id).select('-password');
         logger.info("got user by id");
         return res.status(200).json(user);
     } catch (err) {
