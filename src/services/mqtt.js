@@ -1,6 +1,6 @@
 import mqtt from 'mqtt'
 import '../common/env.js'
-import FeedingReport from '../resources/ReportStatus/model.js'
+import FeedingReport from '../resources/ReportFeedingStatus/model.js'
 import mongoose from 'mongoose'
 import logger from '../common/logger.js'
 
