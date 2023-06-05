@@ -64,7 +64,8 @@ client.on('message', async (topic, message) => {
             time, 
             amount,
             chickens,
-            capacity
+            capacity,
+            status: 'success'
         });
         await data.save();
         logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time}`);
