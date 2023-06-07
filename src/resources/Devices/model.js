@@ -6,7 +6,7 @@ const deviceSchema = new mongoose.Schema({
         required: true
     },
     feedingCapacity : {
-        type: String,
+        type: Number,
         required: true
     },
     currentCapacity : {

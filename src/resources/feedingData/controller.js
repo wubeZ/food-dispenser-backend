@@ -142,9 +142,13 @@ const getCapacity = async (req, res) => {
             return res.status(500).json({ error: true, message: 'Error Getting Capacity' });
         }
         
-        const updateDevice = await DeviceModel.findOneAndUpdate({ device_id: device }, { capacity: message });
+        const updateDevice = await DeviceModel.findOneAndUpdate({ device_id: device }, { capacity: message }, { new: true });
         logger.info("update device capacity: ", updateDevice);
-        return res.status(200).json({ message: 'Capacity successfully fetched', data: {device, message } });
+        const data = {
+            currentCapacity: message,
+            feedingCapacity : updateDevice.feedingCapacity
+        }
+        return res.status(200).json({ message: 'Capacity successfully fetched', data: data });
 }
 
 
