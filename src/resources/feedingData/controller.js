@@ -148,11 +148,12 @@ const updateFeedingData = async (req, res) => {
     const { previousDate, startDate, endDate, amount, chickens, recurrence } = req.body;
 
     try {
-        const prev_data = await FeedingData.findOne({ startDate: new Date(previousDate) });
+        const dateTime  = new Date(previousDate);
+        const prev_data = await FeedingData.findOne({ startDate: dateTime });
         if (!prev_data) {
             return res.status(404).json({ error: true, message: 'FeedingData not found' });
         }
-        
+        console.log(prev_data);
         const previousAmount = prev_data.amount;
         const previousChickens =  prev_data.chickens;
         const newEndDate = endDate ? new Date(endDate) : "";
@@ -166,12 +167,13 @@ const updateFeedingData = async (req, res) => {
         
         const user = req._id;
         const device = req.device_id;
-        const dateTime = new Date(previousDate);
         
         const deleteFeed = [user, device, previousAmount, previousChickens]
 
         const data = await ScheduleModel.findOne({ date: dateTime });
-        
+        if (!data) {
+            return res.status(404).json({ error: true, message: 'Schedule not found' });
+        }
         await ScheduleModel.updateOne({ _id: data._id }, { $pull: { entries: deleteFeed } });
 
         const updateFeed = [user, device ,amount, chickens];
