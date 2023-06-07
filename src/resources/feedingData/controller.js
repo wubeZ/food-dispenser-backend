@@ -243,11 +243,12 @@ const updateFeedingData = async (req, res) => {
             }
 
         }
+
         logger.info("FeedingData updated successfully");
-        return res.status(200).json({ message: 'FeedingData updated successfully', data: prev_data });
+        return res.status(200).json({ message: 'FeedingData updated successfully' });
 
     } catch (e) {
-        return res.status(404).json({ error: true, message: 'Error with FeedingData' });
+        return res.status(404).json({ error: true, message: 'Error with FeedingData'});
     }
 }
 
