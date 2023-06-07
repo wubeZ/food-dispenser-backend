@@ -153,7 +153,7 @@ const updateFeedingData = async (req, res) => {
         if (!prev_data) {
             return res.status(404).json({ error: true, message: 'FeedingData not found' });
         }
-        console.log(prev_data);
+        
         const previousAmount = prev_data.amount;
         const previousChickens =  prev_data.chickens;
         const newEndDate = endDate ? new Date(endDate) : "";
