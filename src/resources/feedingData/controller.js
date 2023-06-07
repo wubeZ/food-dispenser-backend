@@ -168,7 +168,7 @@ const updateFeedingData = async (req, res) => {
         const user = req._id;
         const device = req.device_id;
         
-        const deleteFeed = [user, device, previousAmount, previousChickens]
+        const deleteFeed = { user, device, previousAmount, previousChickens };
 
         const data = await ScheduleModel.findOne({ date: dateTime });
         if (!data) {
