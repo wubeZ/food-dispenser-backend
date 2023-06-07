@@ -150,77 +150,99 @@ const getCapacity = async (req, res) => {
 
 const updateFeedingData = async (req, res) => { 
     const { previousDate, startDate, endDate, amount, chickens, recurrence } = req.body;
-
+    
     try {
-        const dateTime  = new Date(previousDate);
-        const prev_data = await FeedingData.findOne({ startDate: dateTime });
-        if (!prev_data) {
-            return res.status(404).json({ error: true, message: 'FeedingData not found' });
-        }
-        
-        const previousAmount = prev_data.amount;
-        const previousChickens =  prev_data.chickens;
-        const newEndDate = endDate ? new Date(endDate) : "";
-        prev_data.startDate = new Date(startDate);
-        prev_data.endDate = newEndDate;
-        prev_data.amount = amount;
-        prev_data.chickens = chickens;
-        prev_data.recurrence = recurrence;
-        
-        await prev_data.save();
-        
         const user = req._id;
         const device = req.device_id;
-        
-        const deleteFeed = { user: user , device: device , previousAmount: previousAmount, previousChickens: previousChickens };
-
-        const data = await ScheduleModel.findOne({ date: dateTime });
-        if (!data) {
-            return res.status(404).json({ error: true, message: 'Schedule not found' });
-        }
-        await ScheduleModel.findOneAndUpdate({ _id: data._id }, { $pull: { entries: deleteFeed } });
-
-        const updateFeed = { user: user, device: device ,amount: amount , chickens: chickens };
-        
-        const date1 = new Date(previousDate);
-        const date2 = new Date(startDate);
-
-        if ( date1.getFullYear() === date2.getFullYear() &&
-            date1.getMonth() === date2.getMonth() &&
-            date1.getDate() === date2.getDate() &&
-            date1.getHours() === date2.getHours() &&
-            date1.getMinutes() === date2.getMinutes() &&
-            date1.getSeconds() === date2.getSeconds() ) 
-        {
-            data.entries.push(updateFeed);
-            await data.save();
-        } else {
-            const dateformat = new Date(startDate);
-            const data = await ScheduleModel.findOne({ date: dateformat });
-            if (data){
-                data.entries.push({ user: user, device: device ,amount: amount , chickens: chickens });
-                await data.save();
+        const dateTime  = new Date(previousDate);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+       
+        if (start.getTime() > end.getTime()) {
+            const delete_data = await FeedingData.findOneAndRemove({ startDate: dateTime });
+            if (!delete_data) {
+            return res.status(404).json({ error: true, message: 'FeedingData not found' });
             }
-            else{
-                const dayOfWeek = dateformat.getDay();
-                const dayOfMonth = dateformat.getDate();
-                const hour = dateformat.getHours();
-                const minute = dateformat.getMinutes();
-                const second = dateformat.getSeconds();
-                //schedule the job
-                const dateString = `${second} ${minute} ${hour} ${dayOfMonth} * ${dayOfWeek}`;
-
-                await ScheduleModel.create({
-                    date: dateformat,
-                    entries: [{ user : user , device: device  ,amount: amount , chickens: chickens }],
-                    scheduleString: dateString
-                });
-
-                const response = create(dateformat , dateString, chickens, amount, device);
+            const amount = delete_data.amount;
+            const chickens = delete_data.chickens;
             
-        }
-    }
+            const schedule = await ScheduleModel.findOneAndUpdate(
+                { date: dateTime },
+                { $pull: { entries: { user: user, device: device, amount: amount, chickens: chickens } } },
+                { new: true }
+            );
+            if (!schedule) {
+                return res.status(404).json({ error: true, message: 'FeedingSchedule not found' });
+            }
 
+        }
+        else {
+            const prev_data = await FeedingData.findOne({ startDate: dateTime });
+            if (!prev_data) {
+                return res.status(404).json({ error: true, message: 'FeedingData not found' });
+            }
+            
+            const previousAmount = prev_data.amount;
+            const previousChickens =  prev_data.chickens;
+            const newEndDate = endDate ? new Date(endDate) : "";
+            prev_data.startDate = new Date(startDate);
+            prev_data.endDate = newEndDate;
+            prev_data.amount = amount;
+            prev_data.chickens = chickens;
+            prev_data.recurrence = recurrence;
+            
+            await prev_data.save();
+            
+            
+            const deleteFeed = { user: user , device: device , previousAmount: previousAmount, previousChickens: previousChickens };
+    
+            const data = await ScheduleModel.findOne({ date: dateTime });
+            if (!data) {
+                return res.status(404).json({ error: true, message: 'Schedule not found' });
+            }
+            await ScheduleModel.findOneAndUpdate({ _id: data._id }, { $pull: { entries: deleteFeed } });
+    
+            const updateFeed = { user: user, device: device ,amount: amount , chickens: chickens };
+            
+            const date1 = new Date(previousDate);
+            const date2 = new Date(startDate);
+    
+            if ( date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate() &&
+                date1.getHours() === date2.getHours() &&
+                date1.getMinutes() === date2.getMinutes() &&
+                date1.getSeconds() === date2.getSeconds() ) 
+            {
+                data.entries.push(updateFeed);
+                await data.save();
+            } else {
+                const dateformat = new Date(startDate);
+                const data = await ScheduleModel.findOne({ date: dateformat });
+                if (data){
+                    data.entries.push({ user: user, device: device ,amount: amount , chickens: chickens });
+                    await data.save();
+                }
+                else{
+                    const dayOfWeek = dateformat.getDay();
+                    const dayOfMonth = dateformat.getDate();
+                    const hour = dateformat.getHours();
+                    const minute = dateformat.getMinutes();
+                    const second = dateformat.getSeconds();
+                    //schedule the job
+                    const dateString = `${second} ${minute} ${hour} ${dayOfMonth} * ${dayOfWeek}`;
+    
+                    await ScheduleModel.create({
+                        date: dateformat,
+                        entries: [{ user : user , device: device  ,amount: amount , chickens: chickens }],
+                        scheduleString: dateString
+                    });
+
+                    const response = create(dateformat , dateString, chickens, amount, device);
+                }
+            }
+
+        }
         logger.info("FeedingData updated successfully");
         return res.status(200).json({ message: 'FeedingData updated successfully', data: prev_data });
 
