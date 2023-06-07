@@ -19,7 +19,6 @@ const createFeedingData = async (req, res) => {
         await data.save();
     }
     else{
-        const date = startDate;
         const dateformat = dateTime;
         const dayOfWeek = dateformat.getDay();
         const dayOfMonth = dateformat.getDate();
@@ -35,7 +34,7 @@ const createFeedingData = async (req, res) => {
             scheduleString: dateString
         });
 
-        const response = create(date, dateString, chickens, amount, device);
+        const response = create(dateTime, dateString, chickens, amount, device);
         
     }
         const newEndDate = endDate ? new Date(endDate) : "";
@@ -51,6 +50,7 @@ const createFeedingData = async (req, res) => {
         
         try {
             await newData.save();
+            logger.info("FeedingData created successfully");
             return res.status(201).json({ message: 'FeedingData created successfully' });
         } catch (error) {
             return res.status(400).json({ error: error.message });
@@ -63,6 +63,7 @@ const getAllFeedingData = async (req, res) => {
         const currentDate = new Date();
 
         const data = await FeedingData.find({ startDate: { $gte: currentDate }});
+        logger.info("FeedingData fetched successfully");
         return res.status(200).json({ data });
     } catch (error) {
         return res.status(404).json({ error: true, message: 'Error with FeedingData' });
@@ -75,6 +76,7 @@ const getFeedingDataById = async (req, res) => {
         if (!data) {
             return res.status(404).json({ error: true, message: 'FeedingData not found' });
         }
+        logger.info("FeedingData fetched by id successfully");
         return res.status(200).json({ message: 'FeedingData successfully fetched', data });
     } catch (e) {
         return res.status(e.status).json({ error: true, message: 'Error with FeedingData' });
@@ -95,6 +97,7 @@ const deleteFeedingDataById = async (req, res) => {
         jobObject.cancel();
 
         await FeedingData.findByIdAndRemove(req.params.id);
+        logger.info("FeedingData deleted by id successfully");
         return res.status(200).json({ message: 'FeedingData deleted successfully' });
 
     } catch (e) {
@@ -140,11 +143,12 @@ const getCapacity = async (req, res) => {
         }
         
         const updateDevice = await DeviceModel.findOneAndUpdate({ device_id: device }, { capacity: message });
+        logger.info("update device capacity: ", updateDevice);
         return res.status(200).json({ message: 'Capacity successfully fetched', data: {device, message } });
 }
 
 
-const updateFeedingData = async (req, res) => {
+const updateFeedingData = async (req, res) => { 
     const { previousDate, startDate, endDate, amount, chickens, recurrence } = req.body;
 
     try {
@@ -168,19 +172,56 @@ const updateFeedingData = async (req, res) => {
         const user = req._id;
         const device = req.device_id;
         
-        const deleteFeed = { user, device, previousAmount, previousChickens };
+        const deleteFeed = { user: user , device: device , previousAmount: previousAmount, previousChickens: previousChickens };
 
         const data = await ScheduleModel.findOne({ date: dateTime });
         if (!data) {
             return res.status(404).json({ error: true, message: 'Schedule not found' });
         }
-        await ScheduleModel.updateOne({ _id: data._id }, { $pull: { entries: deleteFeed } });
+        await ScheduleModel.findOneAndUpdate({ _id: data._id }, { $pull: { entries: deleteFeed } });
 
-        const updateFeed = [user, device ,amount, chickens];
+        const updateFeed = { user: user, device: device ,amount: amount , chickens: chickens };
         
-        data.entries.push(updateFeed);
-        await data.save();
+        const date1 = new Date(previousDate);
+        const date2 = new Date(startDate);
 
+        if ( date1.getFullYear() === date2.getFullYear() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getDate() === date2.getDate() &&
+            date1.getHours() === date2.getHours() &&
+            date1.getMinutes() === date2.getMinutes() &&
+            date1.getSeconds() === date2.getSeconds() ) 
+        {
+            data.entries.push(updateFeed);
+            await data.save();
+        } else {
+            const dateformat = new Date(startDate);
+            const data = await ScheduleModel.findOne({ date: dateformat });
+            if (data){
+                data.entries.push({ user: user, device: device ,amount: amount , chickens: chickens });
+                await data.save();
+            }
+            else{
+                const dayOfWeek = dateformat.getDay();
+                const dayOfMonth = dateformat.getDate();
+                const hour = dateformat.getHours();
+                const minute = dateformat.getMinutes();
+                const second = dateformat.getSeconds();
+                //schedule the job
+                const dateString = `${second} ${minute} ${hour} ${dayOfMonth} * ${dayOfWeek}`;
+
+                await ScheduleModel.create({
+                    date: dateformat,
+                    entries: [{ user : user , device: device  ,amount: amount , chickens: chickens }],
+                    scheduleString: dateString
+                });
+
+                const response = create(dateformat , dateString, chickens, amount, device);
+            
+        }
+    }
+
+        logger.info("FeedingData updated successfully");
         return res.status(200).json({ message: 'FeedingData updated successfully', data: prev_data });
 
     } catch (e) {
@@ -210,6 +251,7 @@ const deleteSingle = async (req, res ) => {
           if (!schedule) {
             return res.status(404).json({ error: true, message: 'FeedingSchedule not found' });
           }
+          logger.info("Feeding event deleted successfully");
           return res.json({ message: 'Feeding event deleted successfully' });
     }
     catch (e) {
