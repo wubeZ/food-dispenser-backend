@@ -22,27 +22,40 @@ const weeklyReport = async (req, res) => {
                 totalFoodConsumption: { $sum: '$amount' },
                 averageFoodConsumptionPerChicken: { $avg: '$amount' },
                 numFeedings: { $sum: 1 },
+                numSuccess: {
+                  $sum: {
+                    $cond: [{ $eq: ['$status', 'success'] }, 1, 0],
+                  },
+                },
+                numFailed: {
+                  $sum: {
+                    $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
+                  },
+                },
                 dataPoints: {
                   $push: {
                     date: '$date',
                     amount: '$amount',
                     chickens: '$chickens',
+                    status: '$status',
                   },
                 },
               },
             },
           ]);
-
-        const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, dataPoints } = reportData[0] || {};
-        
-        const response = {
+          
+          const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, numSuccess, numFailed, dataPoints } = reportData[0] || {};
+          
+          const response = {
             startDate,
             endDate,
-            totalFoodConsumption : totalFoodConsumption || 0,
+            totalFoodConsumption: totalFoodConsumption || 0,
             averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
-            numFeedings : numFeedings || 0,
+            numFeedings: numFeedings || 0,
+            successRate: numFeedings > 0 ? (numSuccess / numFeedings) * 100 : 0,
+            failureRate: numFeedings > 0 ? (numFailed / numFeedings) * 100 : 0,
             dataPoints: dataPoints || [],
-        };
+          };
         logger.info("successfully got weekly report");
         res.status(200).json({ message: "successfully got weekly report", report : response });
     } catch (error) {
@@ -61,40 +74,54 @@ const monthlyReport = async (req, res) => {
 
         const reportData = await FeedingReport.aggregate([
             {
-                $match: {
-                    date: { $gte: startDate, $lte: endDate },
-                    user: new mongoose.Types.ObjectId(user),
-                },
+              $match: {
+                date: { $gte: startDate, $lte: endDate },
+                user: new mongoose.Types.ObjectId(user),
+              },
             },
             {
-                $group: {
-                    _id: null,
-                    totalFoodConsumption: { $sum: '$amount' },
-                    averageFoodConsumptionPerChicken: { $avg: '$amount' },
-                    numFeedings: { $sum: 1 },
-                    dataPoints: {
-                        $push: {
-                            date: '$date',
-                            amount: '$amount',
-                            chickens: '$chickens',
-                        },
-                    },
+              $group: {
+                _id: null,
+                totalFoodConsumption: { $sum: '$amount' },
+                averageFoodConsumptionPerChicken: { $avg: '$amount' },
+                numFeedings: { $sum: 1 },
+                numSuccess: {
+                  $sum: {
+                    $cond: [{ $eq: ['$status', 'success'] }, 1, 0],
+                  },
                 },
+                numFailed: {
+                  $sum: {
+                    $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
+                  },
+                },
+                dataPoints: {
+                  $push: {
+                    date: '$date',
+                    amount: '$amount',
+                    chickens: '$chickens',
+                    status: '$status',
+                  },
+                },
+              },
             },
-        ]);
-
-        const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, dataPoints } = reportData[0] || {};
-
-        const response = {
-            year, 
+          ]);
+          
+          const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, numSuccess, numFailed, dataPoints } = reportData[0] || {};
+          
+          const response = {
+            year,
             month,
             startDate,
             endDate,
-            totalFoodConsumption : totalFoodConsumption || 0,
+            totalFoodConsumption: totalFoodConsumption || 0,
             averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
-            numFeedings : numFeedings || 0,
+            numFeedings: numFeedings || 0,
+            successRate: numFeedings > 0 ? (numSuccess / numFeedings) * 100 : 0,
+            failureRate: numFeedings > 0 ? (numFailed / numFeedings) * 100 : 0,
             dataPoints: dataPoints || [],
-        };
+          };
+
         logger.info("successfully got monthly report");
         res.status(200).json({ message: "successfully got monthly report", report : response });
     } catch (error) {
