@@ -6,11 +6,11 @@ const router = Router();
 
 router
     .route('/weekly')
-    .get(auth, reportController.weeklyReport);
+    .post(auth, reportController.weeklyReport);
 
 router
     .route('/monthly')
-    .get(auth, reportController.monthlyReport);
+    .post(auth, reportController.monthlyReport);
 
 
 export default router;

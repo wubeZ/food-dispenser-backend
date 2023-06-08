@@ -4,7 +4,7 @@ import logger from '../../common/logger.js';
 
 const weeklyReport = async (req, res) => {
     try {
-        const endDate = req.params.endDate || new Date();
+        const endDate = req.body.endDate || new Date();
         // startDate is 7 days before endDate
         const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
         const user = req._id;
@@ -52,8 +52,8 @@ const weeklyReport = async (req, res) => {
 
 const monthlyReport = async (req, res) => {
     try {
-        const year = Number(req.query.year || new Date().getFullYear());
-        const month = Number(req.query.month || new Date().getMonth()) + 1;
+        const year = Number(req.body.year || new Date().getFullYear());
+        const month = Number(req.body.month || new Date().getMonth()) + 1;
         
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
