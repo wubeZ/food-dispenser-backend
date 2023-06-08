@@ -52,8 +52,8 @@ const weeklyReport = async (req, res) => {
             totalFoodConsumption: totalFoodConsumption || 0,
             averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
             numFeedings: numFeedings || 0,
-            successRate: numFeedings > 0 ? (((numSuccess / numFeedings) * 100) + 0.00) : 0.00,
-            failureRate: numFeedings > 0 ? (((numFailed / numFeedings) * 100) + 0.00) : 0.00,
+            successRate: numFeedings > 0 ? parseFloat(((numSuccess / numFeedings) * 100) + 0.00) : parseFloat(0.00),
+            failureRate: numFeedings > 0 ? parseFloat(((numFailed / numFeedings) * 100) + 0.00) : parseFloat(0.00),
             dataPoints: dataPoints || [],
           };
         logger.info("successfully got weekly report");
@@ -117,8 +117,8 @@ const monthlyReport = async (req, res) => {
             totalFoodConsumption: totalFoodConsumption || 0,
             averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
             numFeedings: numFeedings || 0,
-            successRate: numFeedings > 0 ? (((numSuccess / numFeedings) * 100) + 0.00) : 0.00,
-            failureRate: numFeedings > 0 ? (((numFailed / numFeedings) * 100) + 0.00) : 0.00,
+            successRate: numFeedings > 0 ? parseFloat(((numSuccess / numFeedings) * 100) + 0.00) : parseFloat(0.00),
+            failureRate: numFeedings > 0 ? parseFloat(((numFailed / numFeedings) * 100) + 0.00) : parseFloat(0.00),
             dataPoints: dataPoints || [],
           };
 
