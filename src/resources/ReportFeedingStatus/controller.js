@@ -4,7 +4,7 @@ import logger from '../../common/logger.js';
 
 const weeklyReport = async (req, res) => {
     try {
-        const endDate = req.body.endDate || new Date();
+        const endDate = req.body.endDate ? new Date(req.body.endDate) : new Date();
         // startDate is 7 days before endDate
         const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
         const user = req._id;
