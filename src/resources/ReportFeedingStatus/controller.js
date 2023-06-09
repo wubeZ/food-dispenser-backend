@@ -124,7 +124,7 @@ const weeklyReport = async (req, res) => {
                     $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
                   },
                 },
-                dailyTotalChickens: { $avg: '$chickens' },
+                dailyTotalChickens: { $sum: '$chickens' },
               },
             },
             {
@@ -135,20 +135,20 @@ const weeklyReport = async (req, res) => {
                 dailyNumFeedings: 1,
                 dailySuccessRate: { $multiply: [{ $divide: ['$dailyNumSuccess', '$dailyNumFeedings'] }, 100] },
                 dailyFailureRate: { $multiply: [{ $divide: ['$dailyNumFailed', '$dailyNumFeedings'] }, 100] },
-                dailyTtotalChickens: 1,
+                dailyAverageChickens: { $divide: ['$dailyTotalChickens', '$dailyNumFeedings'] },
                 _id: 0,
               },
             },
           ]);
           
-          const dataPoints = dailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailySuccessRate, dailyFailureRate, dailyTotalChickens }) => ({
+          const dataPoints = dailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailySuccessRate, dailyFailureRate, dailyAverageChickens }) => ({
             date,
             amount : dailyTotalFoodConsumption || 0,
             averageFoodConsumptionPerFeeding: dailyAverageFoodConsumptionPerFeeding || 0,
             numFeedings: dailyNumFeedings || 0,
             successRate: String(dailySuccessRate) || '0.0',
             failureRate: String(dailyFailureRate) || '0.0',
-            chickens : dailyTotalChickens || 0,
+            chickens : dailyAverageChickens || 0,
           }));
           
           
@@ -232,7 +232,7 @@ const monthlyReport = async (req, res) => {
                     $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
                   },
                 },
-                dailyTotalChickens: { $avg: '$chickens' },
+                dailyTotalChickens: { $sum: '$chickens' },
               },
             },
             {
@@ -243,20 +243,20 @@ const monthlyReport = async (req, res) => {
                 dailyNumFeedings: 1,
                 dailySuccessRate: { $multiply: [{ $divide: ['$dailyNumSuccess', '$dailyNumFeedings'] }, 100] },
                 dailyFailureRate: { $multiply: [{ $divide: ['$dailyNumFailed', '$dailyNumFeedings'] }, 100] },
-                dailyTtotalChickens: 1,
+                dailyAverageChickens: { $divide: ['$dailyTotalChickens', '$dailyNumFeedings'] },
                 _id: 0,
               },
             },
           ]);
           
-          const dataPoints = dailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailySuccessRate, dailyFailureRate, dailyTotalChickens }) => ({
+          const dataPoints = dailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailySuccessRate, dailyFailureRate, dailyAverageChickens }) => ({
             date,
             amount : dailyTotalFoodConsumption || 0,
             averageFoodConsumptionPerFeeding: dailyAverageFoodConsumptionPerFeeding || 0,
             numFeedings: dailyNumFeedings || 0,
             successRate: String(dailySuccessRate) || '0.0',
             failureRate: String(dailyFailureRate) || '0.0',
-            chickens : dailyTotalChickens || 0,
+            chickens : dailyAverageChickens || 0,
           }));
           
           const { totalFoodConsumption, averageFoodConsumptionPerFeeding, numFeedings, numSuccess, numFailed } = reportData[0] || {};
