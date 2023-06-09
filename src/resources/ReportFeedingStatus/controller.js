@@ -133,7 +133,7 @@ const dailyReport = async (req, res) => {
         };
 
         logger.info('Daily report generated successfully');
-        res.status(200).json({message: 'Daily report generated successfully', report: report});
+        res.status(200).json({message: 'Daily report generated successfully', report: response});
     } catch (error) {
         logger.error(error);
         res.status(500).json({ message: 'Internal server error' });
