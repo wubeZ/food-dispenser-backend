@@ -1,5 +1,34 @@
 import DeviceModel from './model.js'
 import logger from '../../common/logger.js';
+import { response } from 'express';
+
+
+const createDevice = async (req, res) => {
+    try {
+        if (!req.isAdmin) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        const {deviceName, capacity} = req.body;
+
+        const device = await DeviceModel.create({
+            name: deviceName,
+            feedingCapacity: capacity
+        });
+
+        const response = {
+            device_id: device._id,
+            device_name: device.name,
+            capacity: device.feedingCapacity
+        }
+
+        logger.info('Device created successfully')
+        return res.status(201).json({ message: 'Device created successfully', response });
+    } catch (error) {
+        return res.status(500).json({ error: true, message: 'Error with Device' });
+    }
+}
+
+
 
 const getAllDevices = async (req, res) => {
     try {
@@ -76,6 +105,7 @@ export default {
     getAllDevices,
     getDeviceDataById,
     deleteDeviceDataById,
-    updateDevice
+    updateDevice,
+    createDevice
 
 }

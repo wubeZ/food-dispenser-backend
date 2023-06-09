@@ -7,6 +7,7 @@ const router = Router();
 router
 .route('/')
     .get(auth, deviceController.getAllDevices)
+    .post(auth, deviceController.createDevice)
 
 router
     .route('/:id')
