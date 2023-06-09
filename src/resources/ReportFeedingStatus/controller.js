@@ -183,7 +183,7 @@ const weeklyReport = async (req, res) => {
         const failureDailyData = await FeedingReport.aggregate([
           {
             $match: {
-              date: { $gte: start, $lte: end },
+              date: { $gte: startDate, $lte: endDate },
               user: new mongoose.Types.ObjectId(user),
               status: 'failed',
             },
