@@ -11,7 +11,7 @@ const dailyReport = async (req, res) => {
 
         const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1, 0, 0, 0, 0);
         const end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1, 23, 59, 59, 999);
-        
+
         const reportData = await FeedingReport.aggregate([
             {
                 $match: {
@@ -23,7 +23,7 @@ const dailyReport = async (req, res) => {
                 $group: {
                     _id: null,
                     totalFoodConsumption: { $sum: '$amount' },
-                    averageFoodConsumptionPerChicken: { $avg: '$amount' },
+                    averageFoodConsumptionPerFeeding: { $avg: '$amount' },
                     numFeedings: { $sum: 1 },
                     numSuccess: {
                         $sum: { 
@@ -47,11 +47,11 @@ const dailyReport = async (req, res) => {
             },
         ]);
 
-        const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, numSuccess, numFailed, dataPoints } = reportData[0] || {};
+        const { totalFoodConsumption, averageFoodConsumptionPerFeeding, numFeedings, numSuccess, numFailed, dataPoints } = reportData[0] || {};
         const report = {
             date: startDate,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
+            averageFoodConsumptionPerFeeding: averageFoodConsumptionPerFeeding || 0,
             numFeedings: numFeedings || 0,
             successRate: numFeedings > 0 ? String(((numSuccess / numFeedings) * 100) + 0.00) : String(0.00),
             failureRate: numFeedings > 0 ? String(((numFailed / numFeedings) * 100) + 0.00) : String(0.00),
@@ -84,7 +84,7 @@ const weeklyReport = async (req, res) => {
               $group: {
                 _id: null,
                 totalFoodConsumption: { $sum: '$amount' },
-                averageFoodConsumptionPerChicken: { $avg: '$amount' },
+                averageFoodConsumptionPerFeeding: { $avg: '$amount' },
                 numFeedings: { $sum: 1 },
                 numSuccess: {
                   $sum: {
@@ -124,7 +124,7 @@ const weeklyReport = async (req, res) => {
                     $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
                   },
                 },
-                dailyTotalChickens: { $sum: '$chickens' },
+                dailyTotalChickens: { $avg: '$chickens' },
               },
             },
             {
@@ -152,13 +152,13 @@ const weeklyReport = async (req, res) => {
           }));
           
           
-          const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, numSuccess, numFailed } = reportData[0] || {};
+          const { totalFoodConsumption, averageFoodConsumptionPerFeeding, numFeedings, numSuccess, numFailed } = reportData[0] || {};
           
           const response = {
             startDate,
             endDate,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
+            averageFoodConsumptionPerFeeding: averageFoodConsumptionPerFeeding || 0,
             numFeedings: numFeedings || 0,
             successRate: numFeedings > 0 ? String(((numSuccess / numFeedings) * 100) + 0.00) : String(0.00),
             failureRate: numFeedings > 0 ? String(((numFailed / numFeedings) * 100) + 0.00) : String(0.00),
@@ -191,7 +191,7 @@ const monthlyReport = async (req, res) => {
               $group: {
                 _id: null,
                 totalFoodConsumption: { $sum: '$amount' },
-                averageFoodConsumptionPerChicken: { $avg: '$amount' },
+                averageFoodConsumptionPerFeeding: { $avg: '$amount' },
                 numFeedings: { $sum: 1 },
                 numSuccess: {
                   $sum: {
@@ -232,7 +232,7 @@ const monthlyReport = async (req, res) => {
                     $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
                   },
                 },
-                dailyTotalChickens: { $sum: '$chickens' },
+                dailyTotalChickens: { $avg: '$chickens' },
               },
             },
             {
@@ -259,7 +259,7 @@ const monthlyReport = async (req, res) => {
             chickens : dailyTotalChickens || 0,
           }));
           
-          const { totalFoodConsumption, averageFoodConsumptionPerChicken, numFeedings, numSuccess, numFailed } = reportData[0] || {};
+          const { totalFoodConsumption, averageFoodConsumptionPerFeeding, numFeedings, numSuccess, numFailed } = reportData[0] || {};
           
           const response = {
             year,
@@ -267,7 +267,7 @@ const monthlyReport = async (req, res) => {
             startDate,
             endDate,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerChicken: averageFoodConsumptionPerChicken || 0,
+            averageFoodConsumptionPerFeeding: averageFoodConsumptionPerFeeding || 0,
             numFeedings: numFeedings || 0,
             successRate: numFeedings > 0 ? String(((numSuccess / numFeedings) * 100) + 0.00) : String(0.00),
             failureRate: numFeedings > 0 ? String(((numFailed / numFeedings) * 100) + 0.00) : String(0.00),
