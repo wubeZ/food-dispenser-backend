@@ -9,8 +9,8 @@ const dailyReport = async (req, res) => {
         const startDate = req.body.startDate ? new Date(req.body.startDate) : new Date();
         const user = req._id;
 
-        const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1, 0, 0, 0, 0);
-        const end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1, 23, 59, 59, 999);
+        const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0, 0);
+        const end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 23, 59, 59, 999);
 
         const reportData = await FeedingReport.aggregate([
           {
