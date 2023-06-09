@@ -13,51 +13,123 @@ const dailyReport = async (req, res) => {
         const end = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1, 23, 59, 59, 999);
 
         const reportData = await FeedingReport.aggregate([
-            {
-                $match: {
-                    date: { $gte: start, $lt: end },
-                    user: new mongoose.Types.ObjectId(user),
-                },
+          {
+            $match: {
+              date: { $gte: start, $lte: end },
+              user: new mongoose.Types.ObjectId(user),
             },
-            {
-                $group: {
-                    _id: null,
-                    totalFoodConsumption: { $sum: '$amount' },
-                    averageFoodConsumptionPerFeeding: { $avg: '$amount' },
-                    numFeedings: { $sum: 1 },
-                    numSuccess: {
-                        $sum: { 
-                            $cond: [{ $eq: ['$status', 'success'] }, 1, 0],
-                        },
-                    },
-                    numFailed: {
-                        $sum: {
-                            $cond: [{ $eq: ['$status', 'failed'] }, 1, 0],
-                        },
-                    },
-                    dataPoints: {
-                        $push: {
-                                date: '$date',
-                                amount: '$amount',
-                                status: '$status',
-                                chickens: '$chickens',
-                              },
-                      },
-               },
+          },
+          {
+            $group: {
+              _id: null,
+              totalFoodConsumption: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, { $multiply: ['$amount', '$chickens'] }, 0], } },
+              numFeedings: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
+              numSuccess: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
+              numFailed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0], }, },
             },
+          },
+        {
+          $project: {
+            TotalFoodConsumption: 1,
+            numFeedings: 1,
+            numSuccess: 1,
+            numFailed: 1
+          },
+        },
+        ]);
+      
+      const succesDailyData = await FeedingReport.aggregate([
+          {
+            $match: {
+              date: { $gte: start, $lte: end },
+              user: new mongoose.Types.ObjectId(user),
+              status: 'success',
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: '%Y-%m-%d', date: '$date' },
+              },
+              dailyTotalFoodConsumption: { $sum: { $multiply: ['$amount', '$chickens'] }, },
+              dailyNumFeedings: { $sum: 1 },
+              averageChickens: { $avg: '$chickens' },
+            },
+          },
+          {
+            $project: {
+              date: '$_id',
+              dailyTotalFoodConsumption: 1,
+              dailyAverageFoodConsumptionPerFeeding: { $divide: ['$dailyTotalFoodConsumption', '$dailyNumFeedings'] },
+              dailyAverageChickens: 1,
+              dailyNumFeedings: 1,
+            },
+          },
+          {
+            $sort: { date: 1 },
+          },
         ]);
 
-        const { totalFoodConsumption, averageFoodConsumptionPerFeeding, numFeedings, numSuccess, numFailed, dataPoints } = reportData[0] || {};
-        const report = {
-            date: startDate,
+        const failureDailyData = await FeedingReport.aggregate([
+          {
+            $match: {
+              date: { $gte: start, $lte: end },
+              user: new mongoose.Types.ObjectId(user),
+              status: 'failed',
+            },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: '%Y-%m-%d', date: '$date' },
+              },
+              dailyTotalFoodConsumption: { $sum: { $multiply: ['$amount', '$chickens'] }, },
+              dailyNumFeedings: { $sum: 1 },
+              averageChickens: { $avg: '$chickens' },
+            },
+          },
+          {
+            $project: {
+              date: '$_id',
+              dailyTotalFoodConsumption: 1,
+              dailyAverageFoodConsumptionPerFeeding: { $divide: ['$dailyTotalFoodConsumption', '$dailyNumFeedings'] },
+              dailyAverageChickens: 1,
+              dailyNumFeedings: 1,
+            },
+          },
+          {
+            $sort: { date: 1 },
+          },
+        ]);
+
+        const successDataPoints = succesDailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailyAverageChickens }) => ({
+          date,
+          amount : dailyTotalFoodConsumption || 0,
+          averageFoodConsumptionPerFeeding: String(dailyAverageFoodConsumptionPerFeeding) || String(0.0),
+          numFeedings: dailyNumFeedings || 0,
+          chickens : dailyAverageChickens || 0,
+        }));
+
+        const failureDataPoints = failureDailyData.map(({ date, dailyTotalFoodConsumption, dailyAverageFoodConsumptionPerFeeding, dailyNumFeedings, dailyAverageChickens }) => ({
+          date,
+          amount : dailyTotalFoodConsumption || 0,
+          averageFoodConsumptionPerFeeding: String(dailyAverageFoodConsumptionPerFeeding) || String(0.0),
+          numFeedings: dailyNumFeedings || 0,
+          chickens : dailyAverageChickens || 0,
+        }));
+
+        const { totalFoodConsumption, numFeedings, numSuccess, numFailed } = reportData[0] || {};
+        
+        const response = {
+            start,
+            end,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerFeeding: String(averageFoodConsumptionPerFeeding) || String(0.0),
+            averageFoodConsumptionPerFeeding: String((totalFoodConsumption / numFeedings )) || String(0.0),
             numFeedings: numFeedings || 0,
-            numSuccess: numSuccess || 0,
-            numFailed: numFailed || 0,
             successRate: numFeedings > 0 ? String(((numSuccess / numFeedings) * 100) + 0.00) : String(0.00),
             failureRate: numFeedings > 0 ? String(((numFailed / numFeedings) * 100) + 0.00) : String(0.00),
-            dataPoints: dataPoints || [],
+            successDataPoints: successDataPoints || {},
+            failureDataPoints: failureDataPoints || {}
         };
 
         logger.info('Daily report generated successfully');
@@ -85,11 +157,18 @@ const weeklyReport = async (req, res) => {
             {
               $group: {
                 _id: null,
-                totalFoodConsumption: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, { $multiply: ['$amount', '$chickens'] }, 0], },
+                totalFoodConsumption: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, { $multiply: ['$amount', '$chickens'] }, 0], } },
                 numFeedings: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
                 numSuccess: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
                 numFailed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0], }, },
               },
+            },
+          {
+            $project: {
+              TotalFoodConsumption: 1,
+              numFeedings: 1,
+              numSuccess: 1,
+              numFailed: 1
             },
           },
           ]);
@@ -214,11 +293,18 @@ const monthlyReport = async (req, res) => {
           {
             $group: {
               _id: null,
-              totalFoodConsumption: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, { $multiply: ['$amount', '$chickens'] }, 0], },
+              totalFoodConsumption: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, { $multiply: ['$amount', '$chickens'] }, 0], } },
               numFeedings: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
               numSuccess: { $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0], }, },
               numFailed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0], }, },
             },
+          },
+        {
+          $project: {
+            TotalFoodConsumption: 1,
+            numFeedings: 1,
+            numSuccess: 1,
+            numFailed: 1
           },
         },
         ]);
