@@ -97,23 +97,36 @@ const deleteUserById = async (req, res) => {
 
 
 const login = async (req, res) => {
-    const {email, password} = req.body;
+    const {email, password, phoneNumber } = req.body;
     try {
-        const user = await UserModel.findOne({email: email});
+        if (!email && !phoneNumber) {
+            return res.status(401).json({message: "Email or Phone Number is required"});
+        }
+        if (!password) {
+            return res.status(401).json({message: "Password is required"});
+        }
+        const filter = "";
+        if (email) {
+            filter = {email: email};
+        } else {
+            filter = {phoneNumber: phoneNumber};
+        }
+        const user = await UserModel.findOne(filter);
         if (!user) {
             return res.status(401).json({message: "user not found"});
         }
         const hash = user.password;
         const isMatch = await bcrypt.compare(password, hash);
         if (!isMatch) {
-            return res.status(401).json({message: "incorrect Email or Password"});
+            return res.status(401).json({message: "incorrect Email or Phone Number or Password"});
         }
         const new_user = {
             _id: user._id,
             full_name: user.full_name,
             isAdmin: user.isAdmin,
             device_id: user.device_id,
-            email: user.email
+            email: user.email,
+            phoneNumber: user.phoneNumber
         }
         
         const sendUser = { ...user }["_doc"];

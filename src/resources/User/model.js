@@ -22,7 +22,17 @@ const userSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Device',
         required: false
-    }
+    },
+    phoneNumber: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    address: {
+        type: Schema.Types.ObjectId,
+        ref: 'Address',
+        required: false
+    },
 }, {timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'}
 });
 
