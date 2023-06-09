@@ -397,35 +397,39 @@ const createDummyData = async (req, res) => {
 
       const { startDate , endDate , amount, chickens, recurrence, status, capacity } = req.body;
       
-      const dateTime = new Date(startDate);
-      const newEndDate = new Date(endDate);
+      var dateTime = new Date(startDate);
+      var newEndDate = new Date(endDate);
       
-      const hour = dateTime.getHours();
-      const minute = dateTime.getMinutes();
-      const second = dateTime.getSeconds();
-      const time = hour + ':' + minute + ':' + second;
+      var hour = dateTime.getHours();
+      var minute = dateTime.getMinutes();
+      var second = dateTime.getSeconds();
+      var time = hour + ':' + minute + ':' + second;
       
+      while (dateTime <= newEndDate) {
+        const response = await FeedingData.create({
+            user: user,
+            device: device,
+            startDate: dateTime,
+            endDate: dateTime,
+            amount: amount,
+            chickens: chickens,
+            recurrence: recurrence
+        });
 
-      const response = await FeedingData.create({
-          user: user,
-          device: device,
-          startDate: dateTime,
-          endDate: newEndDate ,
-          amount: amount,
-          chickens: chickens,
-          recurrence: recurrence
-      });
+        const response2 = await FeedingReport.create({
+            user: user,
+            device: device,
+            date: dateTime,
+            time: time,
+            amount: amount,
+            status: status,
+            chickens: chickens,
+            capacity: capacity,
+        });
+      
+        dateTime.setDate(dateTime.getDate() + 1);
 
-      const response2 = await FeedingReport.create({
-          user: user,
-          device: device,
-          date: dateTime,
-          time: time,
-          amount: amount,
-          status: status,
-          chickens: chickens,
-          capacity: capacity,
-      });
+      }
 
       logger.info("successfully created dummy data");
       res.status(200).json({ message: "successfully created dummy data" });
