@@ -105,7 +105,7 @@ const login = async (req, res) => {
         if (!password) {
             return res.status(401).json({message: "Password is required"});
         }
-        const filter = "";
+        var filter = "";
         if (email) {
             filter = {email: email};
         } else {
