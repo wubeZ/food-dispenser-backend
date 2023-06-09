@@ -17,5 +17,9 @@ router
     .route('/monthly')
     .post(auth, reportController.monthlyReport);
 
+router
+    .route('/dummy')
+    .post(auth, reportController.createDummyData);
+
 
 export default router;

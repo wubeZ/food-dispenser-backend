@@ -2,6 +2,8 @@ import FeedingReport from './model.js';
 import mongoose from 'mongoose';
 import logger from '../../common/logger.js';
 
+import FeedingData from '../feedingData/model.js'; // for dummy data
+
 
 
 const dailyReport = async (req, res) => {
@@ -31,8 +33,8 @@ const dailyReport = async (req, res) => {
           },
         {
           $project: {
-            TotalFoodConsumption: 1,
-            numSucessFeedings: 1,
+            totalFoodConsumption: 1,
+            numSuccessFeedings: 1,
             numFailedFeedings: 1,
             numSuccess: 1,
             numFailed: 1
@@ -98,7 +100,7 @@ const dailyReport = async (req, res) => {
             start,
             end,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String((totalFoodConsumption / (numSuccessFeedings || 0) )) : String(0.0),
+            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String(((totalFoodConsumption || 0) / (numSuccessFeedings || 0) )) : String(0.0),
             numFeedings: numSuccessFeedings || 0,
             successRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numSuccess / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
             failureRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numFailed / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
@@ -139,8 +141,8 @@ const weeklyReport = async (req, res) => {
           },
         {
           $project: {
-            TotalFoodConsumption: 1,
-            numSucessFeedings: 1,
+            totalFoodConsumption: 1,
+            numSuccessFeedings: 1,
             numFailedFeedings: 1,
             numSuccess: 1,
             numFailed: 1
@@ -234,7 +236,7 @@ const weeklyReport = async (req, res) => {
             startDate,
             endDate,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String((totalFoodConsumption / (numSuccessFeedings || 0) )) : String(0.0),
+            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String(((totalFoodConsumption || 0) / (numSuccessFeedings || 0) )) : String(0.0),
             numFeedings: numSuccessFeedings || 0,
             successRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numSuccess / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
             failureRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numFailed / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
@@ -277,8 +279,8 @@ const monthlyReport = async (req, res) => {
           },
         {
           $project: {
-            TotalFoodConsumption: 1,
-            numSucessFeedings: 1,
+            totalFoodConsumption: 1,
+            numSuccessFeedings: 1,
             numFailedFeedings: 1,
             numSuccess: 1,
             numFailed: 1
@@ -367,14 +369,13 @@ const monthlyReport = async (req, res) => {
         }));
 
         const { totalFoodConsumption, numSuccessFeedings , numFailedFeedings, numSuccess, numFailed } = reportData[0] || {};
-        
         const response = {
             year,
             month,
             startDate,
             endDate,
             totalFoodConsumption: totalFoodConsumption || 0,
-            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String((totalFoodConsumption / (numSuccessFeedings || 0) )) : String(0.0),
+            averageFoodConsumptionPerFeeding: (numSuccessFeedings || 0) > 0 ? String(((totalFoodConsumption || 0) / (numSuccessFeedings || 0) )) : String(0.0),
             numFeedings: numSuccessFeedings || 0,
             successRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numSuccess / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
             failureRate: ((numFailedFeedings || 0) + (numSuccessFeedings || 0)) > 0 ? String(((numFailed / ((numFailedFeedings || 0) + (numSuccessFeedings || 0))) * 100) + 0.00) : String(0.00),
@@ -389,11 +390,55 @@ const monthlyReport = async (req, res) => {
     }
 };
 
+const createDummyData = async (req, res) => {
+  try {
+      const user = req._id;
+      const device = req.device_id;
+
+      const { startDate , endDate , amount, chickens, recurrence, status, capacity } = req.body;
+      
+      const dateTime = new Date(startDate);
+      const newEndDate = new Date(endDate);
+      
+      const hour = dateTime.getHours();
+      const minute = dateTime.getMinutes();
+      const second = dateTime.getSeconds();
+      const time = hour + ':' + minute + ':' + second;
+      
+
+      const response = await FeedingData.create({
+          user: user,
+          device: device,
+          startDate: dateTime,
+          endDate: newEndDate ,
+          amount: amount,
+          chickens: chickens,
+          recurrence: recurrence
+      });
+
+      const response2 = await FeedingReport.create({
+          user: user,
+          device: device,
+          date: dateTime,
+          time: time,
+          amount: amount,
+          status: status,
+          chickens: chickens,
+          capacity: capacity,
+      });
+
+      logger.info("successfully created dummy data");
+      res.status(200).json({ message: "successfully created dummy data" });
+  } catch (error) {
+      res.status(404).json({ message: error.message });
+  }
+};
 
 export default {
     weeklyReport,
     monthlyReport,
-    dailyReport
+    dailyReport,
+    createDummyData
 }
 
   
