@@ -103,6 +103,11 @@ const getDashboardData = async (req, res) => {
     try {
         const pipeline = [
             {
+                $match: {
+                    status: 'offline',
+                },      
+            },
+            {
               $sort: { createdAt: -1 },
             },
             {
