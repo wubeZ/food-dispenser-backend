@@ -45,7 +45,7 @@ const createUser = async (req, res) => {
         const salt = 10;
         const hash = await bcrypt.hash(password, salt);
 
-        const newAddress = AddressModel.create({
+        const newAddress = await AddressModel.create({
             city: city,
             subCity: subCity,
             wordea: wordea,
