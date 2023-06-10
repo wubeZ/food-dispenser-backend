@@ -66,7 +66,8 @@ const createUser = async (req, res) => {
         
         await user.save();
 
-        const updateDevice = DeviceModel.findByIdAndUpdate(device_id, {status: "online"});
+        const updateDevice = await DeviceModel.findByIdAndUpdate(device_id, {status: "online"});
+
         logger.info("created user");
         return res.status(201).json({message: "user created successfully"});
 
