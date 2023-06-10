@@ -1,5 +1,6 @@
 import UserModel from "./model.js";
 import DeviceModel from "../Devices/model.js";
+import AddressModel from "../Address/model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import logger from "../../common/logger.js";
@@ -19,26 +20,53 @@ const getAllUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
     try {
-        if (!req.isAdmin) {
-            return res.status(401).json({message: "Unauthorized"});
+        
+        const {full_name ,email, password, device_id, phoneNumber, city, subCity, wordea, houseNo, street  } = req.body;
+        
+        if (!full_name || !email || !password || !device_id || !phoneNumber || !city || !subCity ) {
+            return res.status(401).json({message: "All Required fields are must be filled"});
         }
-        const {full_name ,email, password, device_name } = req.body;
-        const emailexist = await UserModel.findOne({email: email});
+        
+        const emailExists = await UserModel.findOne({email: email});
+        const phoneNumberExists = await UserModel.findOne({phoneNumber: phoneNumber});
+        const deviceExists = await DeviceModel.findById(device_id);
 
-        if (emailexist) {
-            return res.status(401).json({message: "Email already exists"});
+        if (!deviceExists) {
+            return res.status(401).json({message: "Device does not exist"});
         }
+
+        if (deviceExists.status === "online") {
+            return res.status(401).json({message: "Device already in use by another user"});
+        }
+        if (emailExists || phoneNumberExists) {
+            return res.status(401).json({message: "Email or Phone Number already exists"});
+        }
+
         const salt = 10;
         const hash = await bcrypt.hash(password, salt);
-        const device = await DeviceModel.create({name: device_name, feedingCapacity: 12 })
+
+        const newAddress = AddressModel.create({
+            city: city,
+            subCity: subCity,
+            wordea: wordea,
+            houseNo: houseNo,
+            street: street
+        });
+
+        const address_id = newAddress._id;
 
         const user = new UserModel({
             full_name: full_name,
             email: email,
+            phoneNumber: phoneNumber,
             password: hash,
-            device_id: device._id
+            device_id: device_id,
+            address: address_id
         });
+        
         await user.save();
+
+        const updateDevice = DeviceModel.findByIdAndUpdate(device_id, {status: "online"});
         logger.info("created user");
         return res.status(201).json({message: "user created successfully"});
 

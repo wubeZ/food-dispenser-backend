@@ -1,6 +1,6 @@
 import DeviceModel from './model.js'
+import UserModel from '../User/model.js'
 import logger from '../../common/logger.js';
-import { response } from 'express';
 
 
 const createDevice = async (req, res) => {
@@ -99,13 +99,51 @@ const updateDevice = async (req, res) => {
     }
 }
 
+const getDashboardData = async (req, res) => {
+    try {
+        const pipeline = [
+            {
+              $sort: { createdAt: -1 },
+            },
+            {
+              $limit: 10,
+            },
+            {
+              $project: {
+                _id: 0,
+                deviceId: '$_id',
+                name: 1,
+                feedingCapacity: 1,
+              },
+            },
+          ];
+          
+            const recentDevices = await DeviceModel.aggregate(pipeline).exec();
+            const totalDevices = await DeviceModel.countDocuments();
+        
+            const users = await UserModel.find({ isAdmin: false });
+            const totalUsers = users.length;
 
+
+        const response = {
+            totalDevices,
+            totalUsers,
+            recentDevices
+        }
+
+        // logger.info('dashboard data successfully fetched')
+        return res.status(200).json({ message: 'dashboard data successfully fetched', response });
+    } catch (e) {
+        return res.status(e.status).json({ error: true, message: 'Error with dashboard data fetch' });
+    }
+}
 
 export default {
     getAllDevices,
     getDeviceDataById,
     deleteDeviceDataById,
     updateDevice,
-    createDevice
+    createDevice,
+    getDashboardData
 
 }

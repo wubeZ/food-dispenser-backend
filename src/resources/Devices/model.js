@@ -12,7 +12,12 @@ const deviceSchema = new mongoose.Schema({
     currentCapacity : {
         type: Number,
         required: false
-    }
+    },
+    status: {
+        type: String,
+        required: true,
+        default: 'offline'
+    },
 },
     {timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'}
 });

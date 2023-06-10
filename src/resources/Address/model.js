@@ -12,6 +12,6 @@ const AddressSchema = new mongoose.Schema(
     { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
   )
   
-const Address = mongoose.model('Address', AddressSchema);
+const AddressModel = mongoose.model('Address', AddressSchema);
 
-export default Address;
+export default AddressModel;

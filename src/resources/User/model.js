@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     device_id: {
         type: Schema.Types.ObjectId,
         ref: 'Device',
-        required: false
+        required: true
     },
     phoneNumber: {
         type: String,
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     address: {
         type: Schema.Types.ObjectId,
         ref: 'Address',
-        required: false
+        required: true
     },
 }, {timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'}
 });
