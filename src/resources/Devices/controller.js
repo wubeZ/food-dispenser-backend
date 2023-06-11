@@ -119,6 +119,7 @@ const getDashboardData = async (req, res) => {
                 deviceId: '$_id',
                 name: 1,
                 feedingCapacity: 1,
+                createdAt: 1,
               },
             },
           ];
