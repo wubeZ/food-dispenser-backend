@@ -119,7 +119,7 @@ const getDashboardData = async (req, res) => {
                 deviceId: '$_id',
                 name: 1,
                 feedingCapacity: 1,
-                createdAt: 1,
+                createdAt: '$created_at',
               },
             },
           ];
@@ -129,7 +129,7 @@ const getDashboardData = async (req, res) => {
         
             const users = await UserModel.find({ isAdmin: false });
             const totalUsers = users.length;
-
+            console.log(recentDevices)
 
         const response = {
             totalDevices,
