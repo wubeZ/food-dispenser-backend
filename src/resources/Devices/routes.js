@@ -14,6 +14,10 @@ router
     .get(auth, deviceController.getDashboardData)
 
 router
+    .route('/subcity')
+    .get(auth, deviceController.subCityCount)
+
+router
     .route('/:id')
     .get(auth, deviceController.getDeviceDataById)
     .put(auth, deviceController.updateDevice)

@@ -101,6 +101,9 @@ const updateDevice = async (req, res) => {
 
 const getDashboardData = async (req, res) => {
     try {
+        if (!req.isAdmin) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
         const pipeline = [
             {
                 $match: {
@@ -144,12 +147,46 @@ const getDashboardData = async (req, res) => {
     }
 }
 
+const subCityCount = async (req, res) => {
+    try {
+        if (!req.isAdmin) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const response = await UserModel.aggregate([
+            {
+              $lookup: {
+                from: 'addresses',
+                localField: 'address',
+                foreignField: '_id',
+                as: 'address'
+              }
+            },
+            {
+              $unwind: '$address'
+            },
+            {
+              $group: {
+                _id: '$address.subCity',
+                count: { $sum: 1 }
+              }
+            }
+          ]);
+
+        logger.info('subcity count successfully fetched')
+        return res.status(200).json({ message: 'subcity count successfully fetched', response });
+    } catch (e) {
+        return res.status(e.status).json({ error: true, message: 'Error with subcity count fetch' });
+    }
+}
+
 export default {
     getAllDevices,
     getDeviceDataById,
     deleteDeviceDataById,
     updateDevice,
     createDevice,
-    getDashboardData
+    getDashboardData,
+    subCityCount
 
 }
