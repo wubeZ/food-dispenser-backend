@@ -1,7 +1,7 @@
 import mqtt from 'mqtt'
 import '../common/env.js'
 import FeedingReport from '../resources/ReportFeedingStatus/model.js'
-import mongoose from 'mongoose'
+import UserModel from '../resources/User/model.js'
 import logger from '../common/logger.js'
 
 
@@ -39,15 +39,18 @@ client.subscribe('feedingResponse', { qos: 1 }, function (err) {
 })
 
 client.on('message', async (topic, message) => { 
-    logger.info('MQTT message received:', topic, message.toString())
-    if (topic == 'feedingResponse1222'){ // change the topic to the topic you want to subscribe to
+    if (topic == 'feedingResponse'){ 
         message = message.toString()
         message = message.split(',')
 
-        const amount = message[1]
-        const chickens = message[2]
-        const capacity = message[3]
-        const user = mongoose.Types.ObjectId(message[4])
+        const device_id = message[0];
+        const amount = message[1];
+        const chickens = message[2];
+        const capacity = message[3];
+
+        const user = await UserModel.findOne({device: device_id});
+
+
         const newdate = new Date();
         const hour = newdate.getHours();
         const minute = newdate.getMinutes();
@@ -68,7 +71,7 @@ client.on('message', async (topic, message) => {
             status: 'success'
         });
         await data.save();
-        logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time}`);
+        logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time} in device ${device_id}`);
     }    
 
 })

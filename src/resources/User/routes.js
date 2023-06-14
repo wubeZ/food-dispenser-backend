@@ -27,6 +27,10 @@ router
 router
     .route('/change-password').post(auth, userController.changePassword)
 
+router.route('/forgetPassword').post(userController.forgetPassword);
+router.route('/resetPassword').post(userController.resetPassword);
+router.route('/validiteOTP').post(userController.validiteOTP);
+
 router
     .route(":id")
     .get(auth, userController.getUser)

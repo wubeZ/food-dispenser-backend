@@ -1,9 +1,12 @@
 import UserModel from "./model.js";
 import DeviceModel from "../Devices/model.js";
 import AddressModel from "../Address/model.js";
+import OtpUserModel from "../otp-user/model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import logger from "../../common/logger.js";
+import otpGenerator from 'otp-generator'
+
 
 const getAllUsers = async (req, res) => {
     try {
@@ -222,6 +225,96 @@ const createAdmin = async (req, res) => {
     }
 }
 
+const generateOTP = (length) => {
+        otpGenerator.generate(length, {
+            digits: true,
+            lowerCaseAlphabets: false,
+            upperCaseAlphabets: false,
+            specialChars: false
+        });
+}
+
+const forgetPassword = async (req, res) => {
+    try {
+        const email = req.body.email;
+
+        const User = await UserModel.findOne({email: email});
+        if (!User) {
+            return res.status(401).json({message: "User not found"});
+        }
+
+          // generate the OTP
+            const OTP = generateOTP(6)
+            
+            const newOTP = {
+                user: User._id,
+                otp: OTP
+            }
+
+            // generate OTP and link it with the user
+            const data = await OtpUserModel.create(newOTP);
+            if (!data) {
+                return res.status(400).json({ message: 'error generating reset link' })
+            }
+
+            // send the OTP to the user
+            const credentials = {
+                link: OTP,
+                to: User.email,
+                intent: 'Resetting your user password',
+                proc: 'Password Reset',
+                extra: 'Generated OTP expires within a day'
+            }
+
+            const Email = await sendMail(credentials)
+            if (!Email) {
+                await OtpUserModel.deleteOne('', true, { _id: data._id });
+                return res.status(500).json({ message: 'could not send reset link, try later' })
+            }
+            return res.status(200).json({ message: 'Password reset link sent to the email' })
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+const resetPassword = async (req, res, next) => {
+    try {
+        const { otp, password } = req.body;
+        const OTP = await OtpUserModel.findOne({ otp: otp });
+        if (!OTP) {
+            return res.status(401).json({ message: 'Invalid OTP' })
+        }
+
+        const newPassword = await bcrypt.hash(password, 12);
+
+        const repsonse = await UserModel.updateOne({ _id: OTP.user }, { password: newPassword });
+        if (!repsonse) {
+            return res.status(500).json({ message: 'could not reset password, try later' })
+        }
+        await OtpUserModel.deleteOne('', true, { _id: OTP._id });
+        return res.status(200).json({ message: 'Password reset successful' });
+    } catch (err) {
+        next(err);
+    }
+}
+
+const validiteOTP = async (req, res) => {
+    try {
+        const {email, otp} = req.body;
+
+        const User = await UserModel.findOne({email: email});
+        if (!User) {
+            return res.status(401).json({message: "User not found"});
+        }
+        const Otp = await OtpUserModel.findOne({otp: otp, user: User._id});
+        if (!Otp) {
+            return res.status(401).json({message: "Invalid OTP"});
+        }
+        return res.status(200).json({message: "OTP is valid"});
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
 
 
 export default {
@@ -233,5 +326,8 @@ export default {
     login,
     changePassword,
     createAdmin,
-    getUser
+    getUser,
+    forgetPassword,
+    resetPassword,
+    validiteOTP
 }
