@@ -61,8 +61,9 @@ const createFeedingData = async (req, res) => {
 const getAllFeedingData = async (req, res) => {
     try {
         const currentDate = new Date();
+        const user = req._id;
 
-        const data = await FeedingData.find({ startDate: { $gte: currentDate }});
+        const data = await FeedingData.find({ user: user, startDate: { $gte: currentDate }});
         logger.info("FeedingData fetched successfully");
         return res.status(200).json({ data });
     } catch (error) {
