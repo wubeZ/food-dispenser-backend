@@ -12,7 +12,7 @@ const transporter = nodeMailer.createTransport({
   }
 })
 
-export const sendMail = async (credentials) => {
+const sendMail = async (credentials) => {
   try {
     let info = await transporter.sendMail({
       from: process.env.EMAIL,
@@ -44,3 +44,5 @@ export const sendMail = async (credentials) => {
     logger.error({ issue: 'email service down', error })
   }
 }
+
+export default sendMail;
