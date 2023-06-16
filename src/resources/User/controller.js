@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import logger from "../../common/logger.js";
 import otpGenerator from 'otp-generator'
+import sendMail from './../../middlewares/send-email.js'
 
 
 const getAllUsers = async (req, res) => {
