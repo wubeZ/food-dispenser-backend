@@ -272,6 +272,7 @@ const forgetPassword = async (req, res) => {
                 await OtpUserModel.deleteOne('', true, { _id: data._id });
                 return res.status(500).json({ message: 'could not send reset link, try later' })
             }
+            logger.info("Password reset link sent");
             return res.status(200).json({ message: 'Password reset link sent to the email' })
     } catch (err) {
         return res.status(500).json({ message: err.message });
@@ -293,9 +294,10 @@ const resetPassword = async (req, res, next) => {
             return res.status(500).json({ message: 'could not reset password, try later' })
         }
         await OtpUserModel.deleteOne('', true, { _id: OTP._id });
+        logger.info("Password reset");
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (err) {
-        next(err);
+        return res.status(500).json({ message: err.message });
     }
 }
 
@@ -311,6 +313,7 @@ const validiteOTP = async (req, res) => {
         if (!Otp) {
             return res.status(401).json({message: "Invalid OTP"});
         }
+        logger.info("OTP is valid");
         return res.status(200).json({message: "OTP is valid"});
     } catch (err) {
         return res.status(500).json({ message: err.message });
