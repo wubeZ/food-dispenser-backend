@@ -269,7 +269,7 @@ const forgetPassword = async (req, res) => {
 
             const Email = await sendMail(credentials)
             if (!Email) {
-                await OtpUserModel.deleteOne('', true, { _id: data._id });
+                await OtpUserModel.deleteOne({ _id: OTP._id }, true);
                 return res.status(500).json({ message: 'could not send reset link, try later' })
             }
             logger.info("Password reset link sent");
@@ -293,7 +293,7 @@ const resetPassword = async (req, res, next) => {
         if (!repsonse) {
             return res.status(500).json({ message: 'could not reset password, try later' })
         }
-        await OtpUserModel.deleteOne('', true, { _id: OTP._id });
+        await OtpUserModel.deleteOne({ _id: OTP._id }, true);
         logger.info("Password reset");
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (err) {
