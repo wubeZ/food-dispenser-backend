@@ -21,7 +21,7 @@ const sendMail = async (credentials) => {
       html: `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
             <div style="margin:50px auto;width:70%;padding:20px 0">
                 <div style="border-bottom:1px solid #eee">
-                <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Lab Connect</a>
+                <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Automatic Food Dispenser</a>
                 </div>
                 <p style="font-size:1.1em">Hi, ${credentials.to}</p>
                 <h4>Hi there, this in regards to ${credentials.intent} </h4>
