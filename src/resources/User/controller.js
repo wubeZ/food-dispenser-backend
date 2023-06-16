@@ -226,7 +226,7 @@ const createAdmin = async (req, res) => {
 }
 
 const generateOTP = (length) => {
-        otpGenerator.generate(length, {
+        return otpGenerator.generate(length, {
             digits: true,
             lowerCaseAlphabets: false,
             upperCaseAlphabets: false,

@@ -132,7 +132,6 @@ const getDashboardData = async (req, res) => {
         
             const users = await UserModel.find({ isAdmin: false });
             const totalUsers = users.length;
-            console.log(recentDevices)
 
         const response = {
             totalDevices,
@@ -140,7 +139,7 @@ const getDashboardData = async (req, res) => {
             recentDevices
         }
 
-        // logger.info('dashboard data successfully fetched')
+        logger.info('dashboard data successfully fetched')
         return res.status(200).json({ message: 'dashboard data successfully fetched', response });
     } catch (e) {
         return res.status(e.status).json({ error: true, message: 'Error with dashboard data fetch' });
