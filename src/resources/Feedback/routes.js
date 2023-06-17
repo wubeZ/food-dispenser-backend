@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Feedbackcontroller from "./controller.js";
-import auth from "../../middlewares/auth";
+import auth from "../../middlewares/auth.js";
 
 
 const router = Router();

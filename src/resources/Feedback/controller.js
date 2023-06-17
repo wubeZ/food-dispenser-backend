@@ -1,5 +1,5 @@
 import Feedback from "./model.js";
-import logger from "../../common/logger";
+import logger from "../../common/logger.js";
 
 
 const create = async (req, res) => {
