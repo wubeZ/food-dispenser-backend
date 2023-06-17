@@ -1,13 +1,13 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const FeedbackSchema = new mongoose.Schema({
     user: {
-        type: Mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
     device: {
-        type: Mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Device",
         required: true,
     },
