@@ -28,6 +28,9 @@ const create = async (req, res) => {
 
 const getAllFeedback = async (req, res) => {
     try {
+        if (!req.isAdmin) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
         const response = await Feedback.find().populate("user").populate("device").sort({date: -1});
         logger.info(`All feedbacks fetched`);
         return res.status(200).json({ message:"got all feedbacks successfully", response: response });
