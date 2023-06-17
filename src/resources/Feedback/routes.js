@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Feedbackcontroller from "./controller";
+import Feedbackcontroller from "./controller.js";
 import auth from "../../middlewares/auth";
 
 

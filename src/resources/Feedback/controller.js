@@ -1,4 +1,4 @@
-import Feedback from "./model";
+import Feedback from "./model.js";
 import logger from "../../common/logger";
 
 
