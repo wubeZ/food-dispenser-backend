@@ -1,0 +1,21 @@
+import { Router } from "express";
+import Feedbackcontroller from "./controller";
+import auth from "../../middlewares/auth";
+
+
+const router = Router();
+
+
+router
+    .route("/")
+    .get(auth, Feedbackcontroller.getAllFeedback)
+    .post(auth, Feedbackcontroller.create);
+
+router
+    .route("/:id")
+    .get(auth, Feedbackcontroller.getFeedbackById)
+    .put(auth, Feedbackcontroller.updateFeedbackById)
+
+
+
+export default router;
