@@ -19,6 +19,8 @@ app.use(
 
 app.use(express.json());
 
+process.env.TZ = 'America/New_York'; // added this to fix the timezone issue
+
 app.get('/', (request, response)=>{
     response.status(200).json('health check: OK')
 });
