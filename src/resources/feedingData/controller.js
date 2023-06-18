@@ -125,7 +125,7 @@ const getCapacity = async (req, res) => {
         });
 
         // Wait for capacity response message or timeout
-        const message = await Promise.race([
+        let message = await Promise.race([
             new Promise(resolve => {
             client.on('message', (topic, payload) => {
                 logger.info("getting message from topic: ", topic, "message :", payload.toString())
