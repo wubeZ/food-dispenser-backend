@@ -129,7 +129,7 @@ const getCapacity = async (req, res) => {
             new Promise(resolve => {
             client.on('message', (topic, payload) => {
                 logger.info("getting message from topic: ", topic, "message :", payload.toString())
-                if (topic === `capacityResponse/${device}`) {
+                if (topic === `capacityResponse`) {
                 resolve(payload.toString());
                 }
             });
