@@ -40,38 +40,45 @@ client.subscribe('feedingResponse', { qos: 1 }, function (err) {
 
 client.on('message', async (topic, message) => { 
     if (topic == 'feedingResponse'){ 
-        message = message.toString()
-        message = message.split(',')
 
-        const device_id = message[0];
-        const amount = message[1];
-        const chickens = message[2];
-        const capacity = message[3];
+        try {
 
-        const user = await UserModel.findOne({device_id: device_id});
-
-
-        const newdate = new Date();
-        const hour = newdate.getHours();
-        const minute = newdate.getMinutes();
-        const second = newdate.getSeconds();
-        const year = newdate.getFullYear();
-        const month = newdate.getMonth() + 1;
-        const day = newdate.getDate();
-        const date = year + '-' + month + '-' + day;
-        const time = hour + ':' + minute + ':' + second;
-
-        const data = new FeedingReport({  
-            user,
-            date, 
-            time, 
-            amount,
-            chickens,
-            capacity,
-            status: 'success'
-        });
-        await data.save();
-        logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time} in device ${device_id}`);
+            message = message.toString()
+            message = message.split(',')
+    
+            const device_id = message[0];
+            const amount = message[1];
+            const chickens = message[2];
+            const capacity = message[3];
+    
+            const user = await UserModel.findOne({device_id: device_id});
+    
+    
+            const newdate = new Date();
+            const hour = newdate.getHours();
+            const minute = newdate.getMinutes();
+            const second = newdate.getSeconds();
+            const year = newdate.getFullYear();
+            const month = newdate.getMonth() + 1;
+            const day = newdate.getDate();
+            const date = year + '-' + month + '-' + day;
+            const time = hour + ':' + minute + ':' + second;
+    
+            const data = new FeedingReport({  
+                user,
+                date, 
+                time, 
+                amount,
+                chickens,
+                capacity,
+                status: 'success'
+            });
+            await data.save();
+            logger.info(`MQTT response: OK, ${amount} grams of food for ${chickens} chickens, capacity: ${capacity} on ${date} at ${time} in device ${device_id}`);
+        }
+        catch (err) {
+            logger.error(err);
+        }
     }    
 
 })
