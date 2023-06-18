@@ -33,7 +33,8 @@ const createFeedingData = async (req, res) => {
             entries: [{ user : user , device: device  ,amount: amount , chickens: chickens }],
             scheduleString: dateString
         });
-
+        
+        console.log(dateTime, dateString, chickens, amount, device );
         const response = create(dateTime, dateString, chickens, amount, device);
         
     }
