@@ -12,6 +12,7 @@ const create = async (date, dateString, chickens, amount, device) => {
     const job = nodeScheduler.scheduleJob(dateString, async () => {
         const schedules = await ScheduleModel.findOne({date: date});
         const feeding = await FeedingData.findOne({startDate: date});
+        console.log("feeding is scheduled and it has gotten to this part "); // added this for debugging
         const entries = schedules.entries;
         const new_jobs = [];
         for (const entry of entries) {
