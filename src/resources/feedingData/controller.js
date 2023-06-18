@@ -10,7 +10,8 @@ const createFeedingData = async (req, res) => {
     // recurrence is value like once, daily
     const user = req._id;
     const device = req.device_id;
-    const dateTime = new Date(startDate);
+    const tempDate = new Date(startDate);
+    const dateTime = tempDate.setDate(tempDate.getDate() + 1);
 
     const data = await ScheduleModel.findOne({ date: dateTime });
 
@@ -38,7 +39,8 @@ const createFeedingData = async (req, res) => {
         const response = create(dateTime, dateString, chickens, amount, device);
         
     }
-        const newEndDate = endDate ? new Date(endDate) : "";
+        const tempendDate = endDate ? new Date(endDate) : "";
+        const newEndDate = tempendDate ? tempendDate.setDate(tempendDate.getDate() + 1) : "";
         const newData = new FeedingData({
             user: user,
             device: device,
