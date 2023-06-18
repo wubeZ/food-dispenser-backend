@@ -48,7 +48,7 @@ client.on('message', async (topic, message) => {
         const chickens = message[2];
         const capacity = message[3];
 
-        const user = await UserModel.findOne({device: device_id});
+        const user = await UserModel.findOne({device_id: device_id});
 
 
         const newdate = new Date();
