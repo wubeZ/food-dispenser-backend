@@ -11,7 +11,8 @@ const createFeedingData = async (req, res) => {
     const user = req._id;
     const device = req.device_id;
     const tempDate = new Date(startDate);
-    const dateTime = tempDate.setDate(tempDate.getDate() + 1);
+    tempDate.setDate(tempDate.getDate() + 1);
+    const dateTime = tempDate;
 
     const data = await ScheduleModel.findOne({ date: dateTime });
 
