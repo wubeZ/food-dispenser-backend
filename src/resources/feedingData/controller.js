@@ -147,9 +147,9 @@ const getCapacity = async (req, res) => {
         message = message.split(',')
 
         const device_id = message[0];
-        const capacity = message[1];
+        const capacity = Number(message[1]);
 
-        const updateDevice = await DeviceModel.findOneAndUpdate({ _id: device_id }, { capacity: capacity }, { new: true });
+        const updateDevice = await DeviceModel.findOneAndUpdate({ _id: device_id }, { currentCapacity: capacity }, { new: true });
         logger.info("update device capacity: ", message);
         const data = {
             currentCapacity: capacity,
