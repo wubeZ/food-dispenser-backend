@@ -15,7 +15,7 @@ const create = async (date, dateString, chickens, amount, device) => {
         const entries = schedules.entries;
         const new_jobs = [];
         for (const entry of entries) {
-          const feedingrepsonse = entry.amount.toString() + ',' + entry.chickens.toString() + ',' + entry.user.toString();
+          const feedingrepsonse = entry.amount.toString() + ',' + entry.chickens.toString();
 
           // check if the device has enough capacity
           const device = await DeviceModel.findById(entry.device);
