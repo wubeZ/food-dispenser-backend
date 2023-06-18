@@ -42,7 +42,7 @@ db.once('open', async function() {
             const amount = entry.amount;
             const device = entry.device;
 
-            const response = create(date, dateString, chickens, amount, device);
+            const response = await create(date, dateString, chickens, amount, device);
             
           }
       }

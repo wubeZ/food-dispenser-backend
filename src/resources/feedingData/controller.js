@@ -35,7 +35,7 @@ const createFeedingData = async (req, res) => {
         });
         
         console.log(dateTime, dateString, chickens, amount, device ); // added this line for debugging
-        const response = create(dateTime, dateString, chickens, amount, device);
+        const response = await create(dateTime, dateString, chickens, amount, device);
         
     }
         const newEndDate = endDate ? new Date(endDate) : "";
