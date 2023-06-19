@@ -41,7 +41,8 @@ const create = async (date, dateString, chickens, amount, device) => {
             logger.info(`feeding ${entry.chickens} chickens ${entry.amount} grams of food failed`); 
           }
           else{
-          client.publish(`feedingRequest/${entry.device}`, feedingrepsonse);
+          // client.publish(`feedingRequest/${entry.device}`, feedingrepsonse);
+          client.publish(`feedingRequest/${entry.device}`,'', {retain: true});
           logger.info(`feeding ${entry.chickens} chickens ${entry.amount} grams of food`);
           schedules.date.setDate(schedules.date.getDate() + 1)
           if ((feeding.endDate === null ) || ((feeding.endDate - schedules.date) >= 0) ){
