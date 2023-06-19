@@ -30,7 +30,6 @@ const create = async (date, dateString, chickens, amount, device) => {
 
             const newReport = new FeedingReport({
               user: entry.user,
-              device: entry.device,
               chickens: entry.chickens,
               amount: entry.amount,
               status: 'failed',
