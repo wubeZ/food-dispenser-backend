@@ -11,7 +11,7 @@ const createFeedingData = async (req, res) => {
     const user = req._id;
     const device = req.device_id;
     const tempDate = new Date(startDate);
-    tempDate.setDate(tempDate.getDate() + 1);
+    // tempDate.setDate(tempDate.getDate() + 1); // added to add one day to the date
     const dateTime = tempDate;
 
     const data = await ScheduleModel.findOne({ date: dateTime });
@@ -40,8 +40,8 @@ const createFeedingData = async (req, res) => {
         const response = create(dateTime, dateString, chickens, amount, device);
         
     }
-        const tempendDate = endDate ? new Date(endDate) : "";
-        const newEndDate = tempendDate ? tempendDate.setDate(tempendDate.getDate() + 1) : "";
+        const newEndDate = endDate ? new Date(endDate) : "";
+        // const newEndDate = tempendDate ? tempendDate.setDate(tempendDate.getDate() + 1) : ""; // added to add one day to the date
         const newData = new FeedingData({
             user: user,
             device: device,
